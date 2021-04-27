@@ -1,0 +1,93 @@
+#main-wrapper{
+    width: 100%;
+    height: 100%;
+    position: relative;
+    z-index: 1;
+}
+.main-box{
+    width: 75%;
+    height: 800px;
+    position: absolute;
+    margin-left: 80px;
+    top:40%;
+    background-color: #b2bec3;
+    margin-top: 45px;
+    border-radius: 8px;
+    display: flex;
+    position: relative;
+}
+.main-box__dotted{
+    width: 95%;
+    height: 93%;
+    position: absolute;
+    background-color: #74b9ff;
+    bottom: 2%;
+    left: 2%;
+    border: 3px white dotted;
+
+}
+.main-box__profile{
+    width: 28%;
+    height: 90%;
+    background-color: white;
+    position: absolute;
+    bottom: 0%;
+    margin: 12px 12px;
+    border-radius: 8px;
+    border: 1px #8395a7 solid;
+    box-shadow: 0px 0px 3px 1px #576574;
+}
+.main-box__board{
+    width: 68%;
+    height: 90%;
+    margin-left: 30%;
+    background-color: white;
+    position: absolute;
+    bottom: 0%;
+    margin-bottom: 12px;
+    margin-top: 12px;
+    border-radius: 8px;
+    border: 1px #8395a7 solid;
+    box-shadow: 0px 0px 3px 1px #576574;
+    
+}
+.main-box__title{
+    position: absolute;
+    top: -30px;
+    margin-left: 10px;
+    font-size: 1.5rem;
+}
+.main-box__title__edit{
+    position: absolute;
+    top: -40px;
+    font-size: 2rem;
+    right: 20px;
+}
+.main-box__profile__pic{
+    width: 90%;
+    height: 45%;
+    margin-left: 5%;
+    margin-top: 5%;
+    border: 1px black solid;
+    border-radius: 3px;
+}
+.main-box__profile__intro{
+    margin-left: 5%;
+    margin-top: 10%;
+    width: 90%;
+    height: 25%;
+    border-bottom: 1px black solid;
+    position: relative;
+}
+.main-box__profile__intro a{
+    position: absolute;
+    bottom: 5%;
+    left: 0%;
+}
+.main-box__link__wrap{
+    position: absolute;
+    width: 90%;
+    height: 20%;
+    bottom: 1%;
+    margin-left: 5%;
+}
