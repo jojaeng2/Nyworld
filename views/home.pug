@@ -19,4 +19,20 @@ html
                                 a(class="main-box__profile__link") blog
                     div(class="main-box__board")
                         p(class="main-box__title")= title
-                        div(class="main-")
+                        div(class="main-box__minihome")
+                        div(class="main-box__board__friendsay")
+                            form(action="/" method="post")
+                                div(class="friendsay__submit")
+                                    p Friends Say
+                                    input(type="text" name="description" placeholder="남기고 싶은 이야기를 나눠보세요~!" class="friendsay__submit__description")
+                                    input(type="text" name="name" placeholder="당신의 이름은!?" class="friendsay__submit__name")
+                                    input(type="submit" value="확인" class="friendsay__submit__button")
+                            div(class="friendsay__comment")
+                                ul(class="friendsay__comment__ul")
+                                    each comment in comments
+                                        div(class="friendsay__comment__ul__flexbox")
+                                            li= comment.description  
+                                            li= "("+comment.name+")"
+                                            li= comment.created 
+                                            form(action="/delete/"+comment.id method="post")
+                                                input(type="submit" value="❌" class="friendsay__command__del") 

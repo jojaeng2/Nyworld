@@ -10,7 +10,8 @@ const conn = mysql.createConnection({
     port: '3306',
     user : 'root',
     password : 'hong971220!',
-    database : 'nyworld'
+    database : 'nyworld',
+    dateStrings : 'date'
 });
 
 app.locals.pretty = true;
@@ -22,25 +23,69 @@ app.set('views','./views');
 app.set('view engine','pug');
 
 app.get('/',(req,res)=>{
-    const sql = 'SELECT title,introduction FROM home';
-    conn.query(sql,(err,result,fields)=>{
+    const sql1 = 'SELECT title,introduction FROM home';
+    const sql2 = 'SELECT id,description,name,created FROM comment';
+    conn.query(sql1,(err,result1,fields)=>{
         if(err){
             console.log(err);
-            res.status(500).send("Internal Server Error");
+            res.status(500).send("Internal Server Error"); 
         } else {
-            res.render('home',{title:result[0].title,introduction: result[0].introduction});
+            conn.query(sql2,(err,result,fields)=>{
+                if(err){
+                    console.log(err);
+                    res.status(500).send("Internal Server Error");
+                }
+                else{
+                    res.render('home',{title:result1[0].title,introduction: result1[0].introduction, comments:result});
+                }
+            })
         }
     })
 })
 
-app.get('/title/edit',(req,res)=>{
-    const sql = "SELECT title,introduction FROM home";
-    conn.query(sql,(err,result,fields)=>{
+app.post('/',(req,res)=>{
+    const description = req.body.description;
+    const name = req.body.name;
+    const sql = "INSERT INTO comment(description, name, created) VALUES(?,?,NOW())"
+    conn.query(sql,[description,name],(err,result,fields)=>{
         if(err){
             console.log(err);
             res.status(500).send("Internal Server Error");
         } else {
-            res.render('update',{title:result[0].title,introduction:result[0].introduction});
+            res.redirect('/');
+        }
+    })
+})
+
+app.post('/delete/:id',(req,res)=>{
+    const id = req.params.id;
+    const sql = "DELETE FROM comment WHERE id=?";
+    conn.query(sql,[id],(err,result,fields)=>{
+        if(err){
+            console.log(err);
+            res.status(500).send("Internal Server Error");
+        }
+        res.redirect('/');
+    })
+})
+
+app.get('/title/edit',(req,res)=>{
+    const sql1 = 'SELECT title,introduction FROM home';
+    const sql2 = 'SELECT id,description,name,created FROM comment';
+    conn.query(sql1,(err,result1,fields)=>{
+        if(err){
+            console.log(err);
+            res.status(500).send("Internal Server Error"); 
+        } else {
+            conn.query(sql2,(err,result,fields)=>{
+                if(err){
+                    console.log(err);
+                    res.status(500).send("Internal Server Error");
+                }
+                else{
+                    res.render('update',{title:result1[0].title,introduction: result1[0].introduction, comments:result});
+                }
+            })
         }
     })
 })
