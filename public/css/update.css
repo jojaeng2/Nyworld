@@ -4,7 +4,7 @@
     margin-left: 5%;
     width: 90%;
     height: 25%;
-    margin-top: 10%;
+    margin-top: 1%;
     position: relative;
 }
 .main-submit__introduction{
@@ -22,4 +22,7 @@
     width: 96%;
     height: 4%;
     font-size: 1.5rem;
+}
+.main-box__profile__upload{
+    margin: 2% 5%;
 }

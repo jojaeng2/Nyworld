@@ -9,9 +9,18 @@ html
             div(class="main-box")
                 div(class="main-box__dotted")
                     div(class="main-box__profile")
+                        div(class="main-box__visited")
+                            p Today
+                            p(class="main-box__visited__today")= date[0].today
+                            p(class="main-box__visited__bar")
+                            p Total 
+                            p(class="main-box__visited__total")= date[0].total
                         div(class="main-box__profile__pic")
+                            -if(profile_image !== '')
+                                img(src=`${profile_image}`)
                         p(class="main-box__profile__intro")= introduction 
                             a(href="/title/edit") 🔐 
+                            
                         div(class="main-box__link__wrap")
                             li
                                 a(class="main-box__profile__link") gitgub 
@@ -20,6 +29,14 @@ html
                     div(class="main-box__board")
                         p(class="main-box__title")= title
                         div(class="main-box__minihome")
+                            a(href="/" class="main-box__bar__now") 
+                                p 홈
+                            a(href="/picture" class="main-box__bar__another") 
+                                p 사진
+                            a(href="/diary" class="main-box__bar__another") 
+                                p 일기장
+                            a(href="/visited" class="main-box__bar__another") 
+                                p 방명록
                         div(class="main-box__board__friendsay")
                             form(action="/" method="post")
                                 div(class="friendsay__submit")
@@ -36,3 +53,4 @@ html
                                             li= comment.created 
                                             form(action="/delete/"+comment.id method="post")
                                                 input(type="submit" value="❌" class="friendsay__command__del") 
+                        

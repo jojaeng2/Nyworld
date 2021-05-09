@@ -1,11 +1,15 @@
-const {json} = require("express");
+const {json, request, response} = require("express");
 const express = require('express');
 const app = express();
 const fs = require('fs');
 const url = require('url');
 const mysql = require('mysql');
 const bodyParser = require('body-parser');
+const cookie = require('cookie');
+const cookieParser = require('cookie-parser');
+const fileUpload = require("express-fileupload");
 const conn = mysql.createConnection({
+    connectLimit : 10,
     host: 'localhost',
     port: '3306',
     user : 'root',
@@ -16,27 +20,68 @@ const conn = mysql.createConnection({
 
 app.locals.pretty = true;
 
+app.use(cookieParser());
 app.use(bodyParser.urlencoded({ extended: false}));
 app.use(express.static('./public'));
+app.use(express.static('upload'));
+app.use(fileUpload({}));
 
 app.set('views','./views');
 app.set('view engine','pug');
 
 app.get('/',(req,res)=>{
-    const sql1 = 'SELECT title,introduction FROM home';
-    const sql2 = 'SELECT id,description,name,created FROM comment';
-    conn.query(sql1,(err,result1,fields)=>{
+    const home = 'SELECT profile_image,main_title,introduction FROM main';
+    const comment = 'SELECT id,description,name,created FROM comment';
+    const date = 'SELECT today,total FROM date WHERE id=1';
+    const update_date = 'UPDATE date SET today=?,total=? WHERE id=1';
+    if(req.headers.cookie === undefined){
+        res.cookie("visited",'yes',{
+            maxAge: 1000*60*30,
+            httpOnly: true
+        })
+        conn.query(date,(err,now_result)=>{
+            if(err){
+                console.log(err);
+                res.status(500).send("Internal Server Error");
+            }
+            else {
+                const today = now_result[0].today;
+                const total = now_result[0].total;
+                conn.query(update_date,[today+1,total+1],(err,next_result)=>{
+                    if(err){
+                        console.log(err);
+                        res.status(500).send("Internal Server Error");
+                    }
+                })
+            }
+        })
+    }
+    conn.query(home,(err,home__sql,fields)=>{
         if(err){
             console.log(err);
             res.status(500).send("Internal Server Error"); 
         } else {
-            conn.query(sql2,(err,result,fields)=>{
+            conn.query(comment,(err,friend_comment,fields)=>{
                 if(err){
                     console.log(err);
                     res.status(500).send("Internal Server Error");
                 }
                 else{
-                    res.render('home',{title:result1[0].title,introduction: result1[0].introduction, comments:result});
+                    conn.query(date,(err,date__sql,fields)=>{
+                        if(err){
+                            console.log(err);
+                            res.status(500).send("Internal Server Error");
+                        }
+                        else{
+                            res.render('home',{
+                                title:home__sql[0].main_title,
+                                introduction: home__sql[0].introduction, 
+                                profile_image: home__sql[0].profile_image,
+                                comments:friend_comment, 
+                                date:date__sql
+                            });
+                        }
+                    })
                 }
             })
         }
@@ -70,20 +115,25 @@ app.post('/delete/:id',(req,res)=>{
 })
 
 app.get('/title/edit',(req,res)=>{
-    const sql1 = 'SELECT title,introduction FROM home';
-    const sql2 = 'SELECT id,description,name,created FROM comment';
-    conn.query(sql1,(err,result1,fields)=>{
+    const home = 'SELECT profile_image,main_title,introduction FROM main';
+    const comment = 'SELECT id,description,name,created FROM comment';
+    conn.query(home,(err,home,fields)=>{
         if(err){
             console.log(err);
             res.status(500).send("Internal Server Error"); 
         } else {
-            conn.query(sql2,(err,result,fields)=>{
+            conn.query(comment,(err,result,fields)=>{
                 if(err){
                     console.log(err);
                     res.status(500).send("Internal Server Error");
                 }
                 else{
-                    res.render('update',{title:result1[0].title,introduction: result1[0].introduction, comments:result});
+                    res.render('update',{
+                        title:home[0].main_title,
+                        introduction: home[0].introduction,
+                        profile_image: home[0].profile_image, 
+                        comments:result
+                    });
                 }
             })
         }
@@ -91,18 +141,185 @@ app.get('/title/edit',(req,res)=>{
 })
 
 app.post('/title/edit',(req,res)=>{
+    let sampleFile;
+    let uploadPath;
     const introduction = req.body.introduction;
     const title = req.body.title;
-    const sql = "UPDATE home SET title=?,introduction=?";
-    conn.query(sql,[title,introduction],(err,result,fields)=>{
+    const image__sql = "UPDATE main SET main_title=?,introduction=?,profile_image = ? WHERE id = 1";
+    const null__image__sql = "UPDATE main SET main_title=?,introduction=? WHERE id = 1";
+    
+    if(!req.files || Object.keys(req.files) === 0){
+        conn.query(null__image__sql,[title,introduction],(err)=>{
+            if(err){
+                console.log(err);
+                res.status(500).send("Internal Server Error");
+            } else {
+                res.redirect('/');
+            }
+        })
+    }
+    else
+    {
+        sampleFile = req.files.sampleFile;
+        uploadPath = __dirname + '/upload/' + sampleFile.name;
+        console.log(sampleFile);
+        console.log(sampleFile.name);
+        sampleFile.mv(uploadPath, (err)=>{
+            if(err) return res.status(500).send(err);
+            conn.query(image__sql,[title,introduction,sampleFile.name],(err)=>{
+                if(err){
+                    console.log(err);
+                    res.status(500).send("Internal Server Error");
+                } else {
+                    res.redirect('/');
+                }
+            })
+        })   
+    }
+})
+
+app.get('/diary',(req,res)=>{
+    const home = 'SELECT profile_image,main_title,introduction FROM main';
+    const date = 'SELECT today,total FROM date WHERE id=1';
+    const update_date = 'UPDATE date SET today=?,total=? WHERE id=1';
+    const diary = 'SELECT id,description,created FROM diary ORDER BY created DESC';
+    if(req.headers.cookie === undefined){
+        res.cookie("visited",'yes',{
+            maxAge: 1000*60*30,
+            httpOnly: true
+        })
+        conn.query(date,(err,now_result)=>{
+            if(err){
+                console.log(err);
+                res.status(500).send("Internal Server Error");
+            }
+            else {
+                const today = now_result[0].today;
+                const total = now_result[0].total;
+                conn.query(update_date,[today+1,total+1],(err,next_result)=>{
+                    if(err){
+                        console.log(err);
+                        res.status(500).send("Internal Server Error");
+                    }
+                })
+            }
+        })
+    }
+    conn.query(home,(err,home__sql,fields)=>{
         if(err){
             console.log(err);
-            res.status(500).send("Internal Server Error");
+            res.status(500).send("Internal Server Error"); 
         } else {
-            res.redirect('/');
+            conn.query(date,(err,date__sql,fields)=>{
+                if(err){
+                    console.log(err);
+                    res.status(500).send("Internal Server Error");
+                }
+                else{
+                    conn.query(diary,(err,diary__sql)=>{
+                        if(err){
+                            console.log(err);
+                            res.status(500).send("Internal Server Error");
+                        }
+                        else{
+                            res.render('diary',{
+                                title:home__sql[0].main_title,
+                                introduction: home__sql[0].introduction, 
+                                profile_image: home__sql[0].profile_image,
+                                date:date__sql,
+                                diary:diary__sql
+                            })
+                        }
+                    })
+                }
+            })
         }
     })
 })
 
+app.get('/diary/add',(req,res)=>{
+    const home = 'SELECT profile_image,main_title,introduction FROM main';
+    const date = 'SELECT today,total FROM date WHERE id=1';
+    const diary = 'SELECT id,description,created FROM diary';
+    if(req.headers.cookie === undefined){
+        res.cookie("visited",'yes',{
+            maxAge: 1000*60*30,
+            httpOnly: true
+        })
+        conn.query(date,(err,now_result)=>{
+            if(err){
+                console.log(err);
+                res.status(500).send("Internal Server Error");
+            }
+            else {
+                const today = now_result[0].today;
+                const total = now_result[0].total;
+                conn.query(update_date,[today+1,total+1],(err,next_result)=>{
+                    if(err){
+                        console.log(err);
+                        res.status(500).send("Internal Server Error");
+                    }
+                })
+            }
+        })
+    }
+    conn.query(home,(err,home__sql,fields)=>{
+        if(err){
+            console.log(err);
+            res.status(500).send("Internal Server Error"); 
+        } else {
+            conn.query(date,(err,date__sql,fields)=>{
+                if(err){
+                    console.log(err);
+                    res.status(500).send("Internal Server Error");
+                }
+                else{
+                    conn.query(diary,(err,diary__sql)=>{
+                        if(err){
+                            console.log(err);
+                            res.status(500).send("Internal Server Error");
+                        }
+                        else{
+                            res.render('diary_add',{
+                                title:home__sql[0].main_title,
+                                introduction: home__sql[0].introduction, 
+                                profile_image: home__sql[0].profile_image,
+                                date:date__sql,
+                                diary:diary__sql
+                            })
+                        }
+                    })
+                }
+            })
+        }
+    })
+})
+
+app.post('/diary/add',(req,res)=>{
+    const description = req.body.description;
+    const sql = "INSERT INTO diary(description,created) VALUES(?,NOW())";
+    conn.query(sql,[description],(err,result)=>{
+        if(err){
+            console.log(err);
+            res.status(500).send("Internal Server Error");
+        } else {
+            res.redirect('/diary');
+        }
+    })
+})
+
+app.post('/diary/delete/:id',(req,res)=>{
+    const id = req.params.id;
+    const diary__sql = 'DELETE FROM diary WHERE id=?';
+    conn.query(diary__sql,[id],(err,result)=>{
+        if(err){
+            console.log(err);
+            res.status(500).send("Internal Server Error");
+        }
+        else {
+            res.redirect("/diary");
+        }
+    })
+})
 
 app.listen(3000,()=>console.log("Express app is learning!"));

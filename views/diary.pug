@@ -1,0 +1,48 @@
+doctype html 
+html 
+    head 
+        meta(charset='utf-8')
+        link(rel="stylesheet", href="/css/main.css")
+        title= home 
+    body
+        div(id="main-wrapper") 
+            div(class="main-box")
+                div(class="main-box__dotted")
+                    div(class="main-box__profile")
+                        div(class="main-box__visited")
+                            p Today
+                            p(class="main-box__visited__today")= date[0].today
+                            p(class="main-box__visited__bar")
+                            p Total 
+                            p(class="main-box__visited__total")= date[0].total
+                        div(class="main-box__profile__pic")
+                        p(class="main-box__profile__intro")= introduction 
+                            a(href="/title/edit") 🔐 
+                        div(class="main-box__link__wrap")
+                            li
+                                a(class="main-box__profile__link") gitgub 
+                            li
+                                a(class="main-box__profile__link") blog
+                    div(class="main-box__board")
+                        p(class="main-box__title")= title
+                        div(class="main-box__diary")
+                            a(href="/" class="main-box__diary__another") 
+                                p 홈
+                            a(href="/picture" class="main-box__diary__another") 
+                                p 사진
+                            a(href="/diary" class="main-box__diary__now") 
+                                p 일기장
+                            a(href="/visited" class="main-box__diary__another") 
+                                p 방명록
+                            div(class="main-box__diary__wrap")
+                                a(href="/diary/add") 
+                                    button(class="main-box__diary__add") 다이어리 추가    
+                                each diary__data in diary 
+                                    div(class="main-box__diary__box")
+                                        div(class="main-box__diary__box__title")
+                                            li= diary__data.created 
+                                            form(action="/diary/delete/"+diary__data.id method="post")
+                                                input(type="submit" value="x" class="diary__delete__button") 
+                                        div(class="main-box__diary__box__description")
+                                            li= diary__data.description 
+                                        

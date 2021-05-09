@@ -1,0 +1,16 @@
+.main-box__diary__add__wrap{
+    margin: 5% 5%;
+    border: 1px #718093 solid;
+    height: 40%;
+    list-style: none;
+}
+.main-box__diary__box__textarea__wrap{
+    height: 100%;
+}
+.main-box__diary__box__textarea{
+    width: 99%;
+    height: 82%;
+    resize: none;
+    border: none;
+    outline: none;
+}

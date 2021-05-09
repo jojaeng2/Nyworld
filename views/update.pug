@@ -7,10 +7,11 @@ html
     body
         div(id="main-wrapper") 
             div(class="main-box")
-                form(action="/title/edit" method="post") 
+                form(action="/title/edit" method="post" encType="multipart/form-data") 
                     div(class="main-box__dotted")
                         div(class="main-box__profile")
                             div(class="main-box__profile__pic")
+                            input(type="file" name="sampleFile" accept="image/*" class="main-box__profile__upload")
                             div(class="introduction-wrap")
                                 textarea(type="text" name="introduction" class="main-submit__introduction")=introduction                
                                 input(type="submit" value="Edit" class="submit-botton")
@@ -21,7 +22,15 @@ html
                                     a(class="main-box__profile__link") blog
                         div(class="main-box__board")
                             input(type="text" name="title" value=title class="main-submit__title")
-                            div(class="main-box__minihome")    
+                            div(class="main-box__minihome")  
+                                a(href="/" class="main-box__bar__now") 
+                                    p 홈
+                                a(href="/picture" class="main-box__bar__another") 
+                                    p 사진
+                                a(href="/diary" class="main-box__bar__another") 
+                                    p 일기장
+                                a(href="/visited" class="main-box__bar__another") 
+                                    p 방명록  
                             div(class="main-box__board__friendsay")
                                 form(action="/" method="post")
                                     div(class="friendsay__submit")
