@@ -2,6 +2,7 @@ doctype html
 html 
     head 
         meta(charset='utf-8')
+        script(src="../public/js/photo.js")
         link(rel="stylesheet", href="/css/main.css")
         title= home 
     body
@@ -30,16 +31,23 @@ html
                         div(class="main-box__diary")
                             a(href="/" class="main-box__diary__another") 
                                 p 홈
-                            a(href="/photo" class="main-box__diary__another") 
+                            a(href="/photo" class="main-box__diary__now") 
                                 p 사진
-                            a(href="/diary" class="main-box__diary__now") 
+                            a(href="/diary" class="main-box__diary__another") 
                                 p 일기장
                             a(href="/visited" class="main-box__diary__another") 
                                 p 방명록
-                            div(class="main-box__diary__wrap")
-                                form(action="/diary/add" method="post" class="main-box__diary__add__wrap") 
-                                    div(class="main-box__diary__box__title")
-                                        li today 
-                                    div(class="main-box__diary__box__textarea__wrap")
-                                        textarea(name="description" class="main-box__diary__box__textarea")
-                                    input(type="submit" value="쓰기" class="diary__box__textarea__submit")
+                            div(class="main-box__photo__wrap")
+                                a(href="/photo_add") 
+                                    button(class="main-box__photo__add") 사진 추가   
+
+                                each photo in photos 
+                                    div(class="main-box__photo__box")
+                                        div(class="main-box__photo__box__title")
+                                            li= photo.title 
+                                            li= photo.created
+                                            form(action="/photo/delete/"+photo.id method="post")
+                                                input(type="submit" value="x" class="photo__delete__button") 
+                                        div(class="main-box__photo__img")
+                                            -if(photo.photo_root !== '')
+                                                img(src=`${photo.photo__root}`)

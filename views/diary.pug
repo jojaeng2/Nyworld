@@ -16,8 +16,10 @@ html
                             p Total 
                             p(class="main-box__visited__total")= date[0].total
                         div(class="main-box__profile__pic")
+                            -if(profile_image !== '')
+                                img(src=`${profile_image}`)
                         p(class="main-box__profile__intro")= introduction 
-                            a(href="/title/edit") 🔐 
+                            a(href="/edit") 🔐 
                         div(class="main-box__link__wrap")
                             li
                                 a(class="main-box__profile__link") gitgub 
@@ -28,14 +30,14 @@ html
                         div(class="main-box__diary")
                             a(href="/" class="main-box__diary__another") 
                                 p 홈
-                            a(href="/picture" class="main-box__diary__another") 
+                            a(href="/photo" class="main-box__diary__another") 
                                 p 사진
                             a(href="/diary" class="main-box__diary__now") 
                                 p 일기장
                             a(href="/visited" class="main-box__diary__another") 
                                 p 방명록
                             div(class="main-box__diary__wrap")
-                                a(href="/diary/add") 
+                                a(href="/add") 
                                     button(class="main-box__diary__add") 다이어리 추가    
                                 each diary__data in diary 
                                     div(class="main-box__diary__box")

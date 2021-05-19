@@ -30,16 +30,14 @@ html
                         div(class="main-box__diary")
                             a(href="/" class="main-box__diary__another") 
                                 p 홈
-                            a(href="/photo" class="main-box__diary__another") 
+                            a(href="/photo" class="main-box__diary__now") 
                                 p 사진
-                            a(href="/diary" class="main-box__diary__now") 
+                            a(href="/diary" class="main-box__diary__another") 
                                 p 일기장
                             a(href="/visited" class="main-box__diary__another") 
                                 p 방명록
-                            div(class="main-box__diary__wrap")
-                                form(action="/diary/add" method="post" class="main-box__diary__add__wrap") 
-                                    div(class="main-box__diary__box__title")
-                                        li today 
-                                    div(class="main-box__diary__box__textarea__wrap")
-                                        textarea(name="description" class="main-box__diary__box__textarea")
-                                    input(type="submit" value="쓰기" class="diary__box__textarea__submit")
+                            div(class="main-box__photo__wrap")
+                                form(action="/photo_add" method="post" class="main-box__photo__add__wrap" encType="multipart/form-data")
+                                    input(type="text" name="title" class="photo__add__title__input")
+                                    input(type="file" name="photoFile" accept="image/*" class="photo__add__file__input")
+                                    input(type="submit" value="Upload" class="photo__add__submit__input")

@@ -7,10 +7,18 @@ html
     body
         div(id="main-wrapper") 
             div(class="main-box")
-                form(action="/title/edit" method="post" encType="multipart/form-data") 
+                form(action="/edit" method="post" encType="multipart/form-data") 
                     div(class="main-box__dotted")
                         div(class="main-box__profile")
+                            div(class="main-box__visited")
+                                p Today
+                                p(class="main-box__visited__today")= date[0].today
+                                p(class="main-box__visited__bar")
+                                p Total 
+                                p(class="main-box__visited__total")= date[0].total
                             div(class="main-box__profile__pic")
+                                -if(profile_image !== '')
+                                    img(src=`${profile_image}`)
                             input(type="file" name="sampleFile" accept="image/*" class="main-box__profile__upload")
                             div(class="introduction-wrap")
                                 textarea(type="text" name="introduction" class="main-submit__introduction")=introduction                
@@ -25,7 +33,7 @@ html
                             div(class="main-box__minihome")  
                                 a(href="/" class="main-box__bar__now") 
                                     p 홈
-                                a(href="/picture" class="main-box__bar__another") 
+                                a(href="/photo" class="main-box__bar__another") 
                                     p 사진
                                 a(href="/diary" class="main-box__bar__another") 
                                     p 일기장

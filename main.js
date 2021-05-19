@@ -23,7 +23,8 @@ app.locals.pretty = true;
 app.use(cookieParser());
 app.use(bodyParser.urlencoded({ extended: false}));
 app.use(express.static('./public'));
-app.use(express.static('upload'));
+app.use(express.static('./upload'));
+app.use(express.static('./photozone'));
 app.use(fileUpload({}));
 
 app.set('views','./views');
@@ -114,9 +115,10 @@ app.post('/delete/:id',(req,res)=>{
     })
 })
 
-app.get('/title/edit',(req,res)=>{
+app.get('/edit',(req,res)=>{
     const home = 'SELECT profile_image,main_title,introduction FROM main';
     const comment = 'SELECT id,description,name,created FROM comment';
+    const date = 'SELECT today,total FROM date WHERE id=1';
     conn.query(home,(err,home,fields)=>{
         if(err){
             console.log(err);
@@ -128,19 +130,28 @@ app.get('/title/edit',(req,res)=>{
                     res.status(500).send("Internal Server Error");
                 }
                 else{
-                    res.render('update',{
-                        title:home[0].main_title,
-                        introduction: home[0].introduction,
-                        profile_image: home[0].profile_image, 
-                        comments:result
-                    });
+                    conn.query(date, (err, date__sql) => {
+                        if(err) {
+                            console.log(err);
+                            res.status(500).send("Internal Server Error");
+                        }
+                        else {
+                            res.render('update',{
+                                title:home[0].main_title,
+                                introduction: home[0].introduction,
+                                profile_image: home[0].profile_image, 
+                                comments:result,
+                                date : date__sql
+                            });
+                        }
+                    })
                 }
             })
         }
     })
 })
 
-app.post('/title/edit',(req,res)=>{
+app.post('/edit',(req,res)=>{
     let sampleFile;
     let uploadPath;
     const introduction = req.body.introduction;
@@ -162,8 +173,6 @@ app.post('/title/edit',(req,res)=>{
     {
         sampleFile = req.files.sampleFile;
         uploadPath = __dirname + '/upload/' + sampleFile.name;
-        console.log(sampleFile);
-        console.log(sampleFile.name);
         sampleFile.mv(uploadPath, (err)=>{
             if(err) return res.status(500).send(err);
             conn.query(image__sql,[title,introduction,sampleFile.name],(err)=>{
@@ -237,7 +246,7 @@ app.get('/diary',(req,res)=>{
     })
 })
 
-app.get('/diary/add',(req,res)=>{
+app.get('/add',(req,res)=>{
     const home = 'SELECT profile_image,main_title,introduction FROM main';
     const date = 'SELECT today,total FROM date WHERE id=1';
     const diary = 'SELECT id,description,created FROM diary';
@@ -295,7 +304,7 @@ app.get('/diary/add',(req,res)=>{
     })
 })
 
-app.post('/diary/add',(req,res)=>{
+app.post('/add',(req,res)=>{
     const description = req.body.description;
     const sql = "INSERT INTO diary(description,created) VALUES(?,NOW())";
     conn.query(sql,[description],(err,result)=>{
@@ -318,6 +327,129 @@ app.post('/diary/delete/:id',(req,res)=>{
         }
         else {
             res.redirect("/diary");
+        }
+    })
+})
+
+app.get('/photo', (req, res) => {
+    const home = 'SELECT profile_image,main_title,introduction FROM main';
+    const date = 'SELECT today,total FROM date WHERE id=1';
+    const update_date = 'UPDATE date SET today=?,total=? WHERE id=1';
+    const photo = 'SELECT id,title,created,photo__root FROM photo ORDER BY created DESC';
+    if(req.headers.cookie === undefined){
+        res.cookie("visited",'yes',{
+            maxAge: 1000*60*30,
+            httpOnly: true
+        })
+        conn.query(date,(err,now_result)=>{
+            if(err){
+                console.log(err);
+                res.status(500).send("Internal Server Error");
+            }
+            else {
+                const today = now_result[0].today;
+                const total = now_result[0].total;
+                conn.query(update_date,[today+1,total+1],(err,next_result)=>{
+                    if(err){
+                        console.log(err);
+                        res.status(500).send("Internal Server Error");
+                    }
+                })
+            }
+        })
+    }
+    conn.query(home,(err,home__sql,fields)=>{
+        if(err){
+            console.log(err);
+            res.status(500).send("Internal Server Error"); 
+        } else {
+            conn.query(date,(err,date__sql,fields)=>{
+                if(err){
+                    console.log(err);
+                    res.status(500).send("Internal Server Error");
+                }
+                else{
+                    conn.query(photo, (err, photos) =>{
+                        if(err) {
+                            console.log(err);
+                            res.status(500).send("Internal Server Error");
+                        }
+                        else{
+                            res.render('photo',{
+                                title:home__sql[0].main_title,
+                                introduction: home__sql[0].introduction, 
+                                profile_image: home__sql[0].profile_image,
+                                date:date__sql,
+                                photos : photos
+                            });
+                        }
+                    })
+                }
+            })
+        }
+    })
+})
+
+app.get('/photo_add', (req, res) => {
+    const home = 'SELECT profile_image,main_title,introduction FROM main';
+    const date = 'SELECT today,total FROM date WHERE id=1';
+    conn.query(home,(err,home__sql,fields)=>{
+        if(err){
+            console.log(err);
+            res.status(500).send("Internal Server Error"); 
+        } else {
+            conn.query(date,(err,date__sql,fields)=>{
+                if(err){
+                    console.log(err);
+                    res.status(500).send("Internal Server Error");
+                }
+                else{
+                    res.render('photo_add',{
+                        title:home__sql[0].main_title,
+                        introduction: home__sql[0].introduction, 
+                        profile_image: home__sql[0].profile_image,
+                        date:date__sql
+                    });
+                }
+            })
+        }
+    })
+})
+
+app.post('/photo_add', (req, res) => {
+    let photoFile;
+    let uploadPath;
+    const title = req.body.title;
+    const photo__sql = "INSERT INTO photo(title, created, photo__root) VALUES(?, NOW(), ?)";
+
+    if(!req.files || Object.keys(req.files) === 0) {
+        return res.redirect('/photo');
+    }
+    else {
+        photoFile = req.files.photoFile;
+        uploadPath = __dirname + '/photozone/' + photoFile.name;
+        photoFile.mv(uploadPath, (err)=>{
+            if(err) return res.status(500).send(err);
+            conn.query(photo__sql, [title, photoFile.name], (err)=>{
+                if(err) {
+                    console.log(err);
+                    res.status(500).send("Internal Server Error");
+                }
+                else {
+                    res.redirect("/photo");
+                }
+            })
+        })
+    }
+})
+
+app.post("/photo/delete/:id", (req, res)=>{
+    const id = req.params.id;
+    const photo = "DELETE FROM photo WHERE id=?";
+    conn.query(photo,[id],(err,result)=>{
+        if(err) return res.status(500).send("Internal  Server Error");
+        else {
+            res.redirect("/photo");
         }
     })
 })

@@ -140,8 +140,7 @@
     border: 1px black solid;
     margin-left: -47.5%;
     left: 50%;
-    top: 0%;
-    margin-top: 43%;
+    top: 50%;
     overflow: auto;
 }
 .friendsay__submit{

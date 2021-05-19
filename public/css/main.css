@@ -3,6 +3,7 @@
 @import "./update.css";
 @import "./diary.css";
 @import "./diary_add.css";
+@import "./picture.css";
 
 body{
     margin: 0;
