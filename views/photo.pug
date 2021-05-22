@@ -2,7 +2,6 @@ doctype html
 html 
     head 
         meta(charset='utf-8')
-        script(src="../public/js/photo.js")
         link(rel="stylesheet", href="/css/main.css")
         title= home 
     body
@@ -40,7 +39,6 @@ html
                             div(class="main-box__photo__wrap")
                                 a(href="/photo_add") 
                                     button(class="main-box__photo__add") 사진 추가   
-
                                 each photo in photos 
                                     div(class="main-box__photo__box")
                                         div(class="main-box__photo__box__title")
@@ -51,3 +49,5 @@ html
                                         div(class="main-box__photo__img")
                                             -if(photo.photo_root !== '')
                                                 img(src=`${photo.photo__root}`)
+    
+    script(src='/js/photo.js')
