@@ -18,6 +18,7 @@ const conn = mysql.createConnection({
     dateStrings : 'date'
 });
 
+
 app.locals.pretty = true;
 
 app.use(cookieParser());
@@ -26,16 +27,18 @@ app.use(express.static('./public'));
 app.use(express.static('./upload'));
 app.use(express.static('./photozone'));
 app.use(fileUpload({}));
-
+app.use(express.static('./public/music'));
 app.set('views','./views');
 app.set('view engine','pug');
+
 
 app.get('/',(req,res)=>{
     const home = 'SELECT profile_image,main_title,introduction FROM main';
     const comment = 'SELECT id,description,name,created FROM comment';
     const date = 'SELECT today,total FROM date WHERE id=1';
     const update_date = 'UPDATE date SET today=?,total=? WHERE id=1';
-    if(req.headers.cookie === undefined){
+
+    if(req.cookies.visited === undefined){
         res.cookie("visited",'yes',{
             maxAge: 1000*60*30,
             httpOnly: true
@@ -88,6 +91,7 @@ app.get('/',(req,res)=>{
         }
     })
 })
+
 
 app.post('/',(req,res)=>{
     const description = req.body.description;
