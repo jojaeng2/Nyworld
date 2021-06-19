@@ -37,6 +37,7 @@ app.get('/',(req,res)=>{
     const comment = 'SELECT id,description,name,created FROM comment';
     const date = 'SELECT today,total FROM date WHERE id=1';
     const update_date = 'UPDATE date SET today=?,total=? WHERE id=1';
+    const music = "SELECT * FROM music WHERE id=?";
 
     if(req.cookies.visited === undefined){
         res.cookie("visited",'yes',{
@@ -60,35 +61,38 @@ app.get('/',(req,res)=>{
             }
         })
     }
+    
     conn.query(home,(err,home__sql,fields)=>{
         if(err){
             console.log(err);
             res.status(500).send("Internal Server Error"); 
-        } else {
-            conn.query(comment,(err,friend_comment,fields)=>{
+        } 
+        conn.query(comment,(err,friend_comment,fields)=>{
+            if(err){
+                console.log(err);
+                res.status(500).send("Internal Server Error");
+             }
+            conn.query(date,(err,date__sql,fields)=>{
                 if(err){
                     console.log(err);
                     res.status(500).send("Internal Server Error");
                 }
-                else{
-                    conn.query(date,(err,date__sql,fields)=>{
-                        if(err){
-                            console.log(err);
-                            res.status(500).send("Internal Server Error");
-                        }
-                        else{
-                            res.render('home',{
-                                title:home__sql[0].main_title,
-                                introduction: home__sql[0].introduction, 
-                                profile_image: home__sql[0].profile_image,
-                                comments:friend_comment, 
-                                date:date__sql
-                            });
-                        }
-                    })
-                }
+                conn.query(music, ["1"], (err, music_sql)=>{
+                    if(err) {
+                        console.log(err);
+                        res.status(500).send("Internal Server Error");
+                    }
+                    res.render('home',{
+                        title:home__sql[0].main_title,
+                        introduction: home__sql[0].introduction, 
+                        profile_image: home__sql[0].profile_image,
+                        comments:friend_comment, 
+                        date:date__sql,
+                        musics: music_sql
+                    });
+                })
             })
-        }
+        })
     })
 })
 

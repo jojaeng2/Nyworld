@@ -3,6 +3,7 @@
     height: 100%;
     position: relative;
     z-index: 1;
+    display: flex;
 }
 .main-box{
     width: 75%;
@@ -203,5 +204,13 @@
     height: 100%;
     object-fit: contain;
 }
-
-.main_music {
+.music-box__wrapper {
+    margin-top: 45px;
+    margin-left: 20px;
+}
+#music-box__search {
+    width: 58%;
+    height: 4%;   
+    margin-left: 15px;
+    margin-bottom: 10px;
+}

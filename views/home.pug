@@ -53,6 +53,9 @@ html
                                             li= comment.created 
                                             form(action="/delete/"+comment.id method="post")
                                                 input(type="submit" value="❌" class="friendsay__command__del") 
-                        
-            audio(src="1.mp3" controls autoplay loop class="main_music") 
             
+            div(class="music-box__wrapper")
+                input(type="text" id ="music-box__search")
+                each music in musics
+                    audio(src= music.url + `.mp3` controls autoplay loop class="music-player") 
+    script(src='/js/music.js')
