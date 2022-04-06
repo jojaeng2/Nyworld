@@ -27,7 +27,7 @@
   블로그에 고민 과정과 해결한 방법을 정리하였다.  
   https://blog.naver.com/ds4ouj/222341673978
 
-  :unlock: Insert Youtube Player
+  :unlock: Insert Youtube Player  
   :key: 단순하게 mp3 file을 저장하기 보다 youtube player를 넣으면 재밌을 것 같았고, 아래와 같은 결과물을 얻게 되었다.  
   ![스크린샷_2021-05-27_오후_11 00 49](https://user-images.githubusercontent.com/76645095/161985656-78a6ac18-42c6-496a-b089-e9738350108d.png)
   youtube player를 web으로 가져오는 방법은 생각보다 어려웠고, youtube의 share 기능은 어떻게 돌아가는지 코드를 하나씩 열어보며 직접 구현에 성공하였다.  
